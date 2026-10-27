@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clínica de Estética</title>
+<style>
+:root{--bg:#f6f5f8;--panel:#fff;--ink:#292431;--muted:#777181;--line:#e8e3ed;--purple:#7651a6;--purple2:#efe7f8;--pink:#d98eae;--green:#267a57;--red:#b84454;--amber:#a56b13}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:var(--purple);color:#fff;font-weight:650}button.secondary{background:#f0edf4;color:var(--ink);border:1px solid var(--line)}button.danger{background:#fff0f1;color:var(--red);border:1px solid #f1cbd0}.shell{max-width:1200px;margin:auto;padding:20px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,var(--purple),var(--pink));display:grid;place-items:center;color:#fff;font-size:23px}.brand h1{font-size:22px;margin:0}.brand p{margin:2px 0 0;color:var(--muted);font-size:13px}.tabs{display:flex;gap:7px;overflow:auto;padding-bottom:12px;margin-bottom:12px}.tabs button{white-space:nowrap;background:transparent;color:var(--muted);border:1px solid transparent}.tabs button.active{background:var(--purple2);color:var(--purple);border-color:#dfd0ef}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}.metric,.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 2px 8px #34204b08}.metric .label{font-size:13px;color:var(--muted)}.metric .value{font-size:25px;font-weight:750;margin-top:6px;overflow-wrap:anywhere}.metric .hint{font-size:12px;color:var(--muted);margin-top:3px}.layout{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.panel h2{font-size:17px;margin:0 0 14px}.panel h3{font-size:15px;margin:16px 0 8px}.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}label{font-size:12px;color:var(--muted);font-weight:650}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px;background:#fff;color:var(--ink);min-width:0}input:focus,select:focus{outline:2px solid #d9c4ee;border-color:var(--purple)}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;font-size:13px;min-width:570px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}td small{color:var(--muted)}.pill{display:inline-block;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:700;background:#f0edf4;color:#665579}.pill.ok{background:#e4f5eb;color:var(--green)}.pill.warn{background:#fff1d8;color:var(--amber)}.pill.bad{background:#ffeaed;color:var(--red)}.empty{padding:25px;text-align:center;color:var(--muted)}.section{display:none}.section.active{display:block}.notice{background:#fff7e7;border:1px solid #f2dfb4;color:#76551b;padding:12px 14px;border-radius:12px;margin-bottom:14px;font-size:13px}.subnav{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.muted{color:var(--muted)}.small{font-size:12px}.totalrow{font-weight:750;background:#faf8fc}.dangertext{color:var(--red)}footer{padding:18px 2px;color:var(--muted);font-size:12px;text-align:center}.hidden{display:none!important}
+@media(max-width:800px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:1fr}.shell{padding:13px}.metric .value{font-size:22px}.brand h1{font-size:19px}}
+@media(max-width:430px){.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.cards{gap:8px}.metric{padding:12px}.metric .value{font-size:20px}.panel{padding:13px}}
+</style>
+</head>
+<body>
+<div id="loginPanel" style="max-width:430px;margin:8vh auto;padding:24px;background:#fff;border:1px solid #e8e3ed;border-radius:16px;box-shadow:0 2px 8px #34204b08">
+  <h1 style="margin-top:0">Clínica de Estética</h1>
+  <p class="muted">Entre com sua conta para acessar os dados compartilhados da clínica.</p>
+  <form id="loginForm">
+    <div class="field"><label for="loginEmail">E-mail</label><input id="loginEmail" type="email" required autocomplete="username"></div>
+    <div class="field" style="margin-top:10px"><label for="loginPassword">Senha</label><input id="loginPassword" type="password" required autocomplete="current-password"></div>
+    <div class="actions"><button type="submit">Entrar</button></div>
+  </form>
+  <p id="loginMessage" class="small" role="status"></p>
+  <p class="muted small">As contas devem ser criadas previamente no Supabase. Este formulário não cria novas contas.</p>
+</div>
+<div class="shell hidden" id="appShell">
+<header class="top">
+  <div class="brand"><div class="logo">✿</div><div><h1>Clínica de Estética</h1><p>Agendamentos, estoque e financeiro</p></div></div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span id="signedInAs" class="muted small"></span><button class="secondary" id="logoutBtn" type="button">Sair</button><button class="secondary" id="exportBtn">Exportar backup</button> <button class="secondary" id="importBtn">Importar backup</button><input type="file" id="importFile" accept="application/json" class="hidden"></div>
+</header>
+<div class="notice"><b>Versão online:</b> os registros são carregados do Supabase. Use seu login individual. Faça backups periódicos por segurança.</div>
+<nav class="tabs">
+<button class="active" data-tab="dashboard">Visão geral</button><button data-tab="appointments">Agendamentos e pagamentos</button><button data-tab="stock">Estoque e validade</button><button data-tab="finance">Financeiro</button><button data-tab="settings">Dados e configurações</button>
+</nav>
+
+<section class="section active" id="dashboard">
+  <div class="cards">
+    <div class="metric"><div class="label">Recebido neste mês</div><div class="value" id="dashReceived">R$ 0,00</div><div class="hint">Pagamentos confirmados</div></div>
+    <div class="metric"><div class="label">Agendamentos hoje</div><div class="value" id="dashToday">0</div><div class="hint">Todos os status</div></div>
+    <div class="metric"><div class="label">Produtos cadastrados</div><div class="value" id="dashProducts">0</div><div class="hint">Itens diferentes</div></div>
+    <div class="metric"><div class="label">Alertas de validade</div><div class="value" id="dashExpiry">0</div><div class="hint">Vencidos ou vencem em 30 dias</div></div>
+  </div>
+  <div class="layout">
+    <div class="panel"><h2>Próximos agendamentos</h2><div id="dashAppointments"></div></div>
+    <div class="panel"><h2>Alertas de estoque e validade</h2><div id="dashAlerts"></div></div>
+  </div>
+</section>
+
+<section class="section" id="appointments">
+  <div class="layout">
+    <div class="panel">
+      <h2 id="apptFormTitle">Novo agendamento</h2>
+      <form id="apptForm">
+        <input type="hidden" id="apptId">
+        <div class="formgrid">
+          <div class="field"><label for="apptDate">Data *</label><input type="date" id="apptDate" required></div>
+          <div class="field"><label for="apptTime">Horário *</label><input type="time" id="apptTime" required></div>
+          <div class="field"><label for="apptClient">Nome da cliente *</label><input id="apptClient" required placeholder="Nome completo"></div>
+          <div class="field"><label for="apptService">Procedimento</label><input id="apptService" placeholder="Ex.: limpeza de pele"></div>
+          <div class="field"><label for="apptValue">Valor (R$) *</label><input type="number" id="apptValue" min="0" step="0.01" required placeholder="0,00"></div>
+          <div class="field"><label for="apptMethod">Forma de pagamento</label><select id="apptMethod"><option>PIX</option><option>Dinheiro</option><option>Crédito</option><option>Débito</option><option>Não informado</option></select></div>
+          <div class="field"><label for="apptStatus">Situação</label><select id="apptStatus"><option value="Pendente">Pendente</option><option value="Confirmado">Confirmado / pago</option><option value="Realizado">Realizado / pago</option><option value="Cancelado">Cancelado</option></select></div>
+          <div class="field"><label for="apptPaymentDate">Data do recebimento</label><input type="date" id="apptPaymentDate"><small class="muted">Preencha quando o pagamento já tiver sido recebido.</small></div>
+          <div class="field"><label for="apptNotes">Observações</label><input id="apptNotes" placeholder="Opcional"></div>
+        </div>
+        <div class="actions"><button type="submit">Salvar agendamento</button><button type="button" class="secondary" id="apptClear">Limpar</button></div>
+      </form>
+    </div>
+    <div class="panel"><div class="subnav"><h2>Agenda</h2><input type="date" id="apptFilter" style="max-width:170px"></div><div id="apptTable"></div></div>
+  </div>
+</section>
+
+<section class="section" id="stock">
+  <div class="layout">
+    <div class="panel">
+      <h2 id="stockFormTitle">Cadastrar produto</h2>
+      <form id="stockForm">
+        <input type="hidden" id="stockId">
+        <div class="formgrid">
+          <div class="field full"><label for="stockName">Nome do produto *</label><input id="stockName" required placeholder="Ex.: sérum facial"></div>
+          <div class="field"><label for="stockPrice">Preço unitário (R$) *</label><input type="number" id="stockPrice" min="0" step="0.01" required></div>
+          <div class="field"><label for="stockQty">Quantidade atual *</label><input type="number" id="stockQty" min="0" step="1" required></div>
+          <div class="field"><label for="stockMin">Estoque mínimo</label><input type="number" id="stockMin" min="0" step="1" value="2"></div>
+          <div class="field"><label for="stockExpiry">Validade</label><input type="date" id="stockExpiry"></div>
+        </div>
+        <div class="actions"><button type="submit">Salvar produto</button><button type="button" class="secondary" id="stockClear">Limpar</button></div>
+      </form>
+      <h3>Registrar retirada</h3>
+      <form id="withdrawForm"><div class="formgrid"><div class="field"><label for="withdrawProduct">Produto</label><select id="withdrawProduct" required></select></div><div class="field"><label for="withdrawQty">Quantidade retirada</label><input type="number" id="withdrawQty" min="1" step="1" required></div></div><div class="actions"><button type="submit">Registrar retirada</button></div></form>
+    </div>
+    <div class="panel"><div class="subnav"><h2>Produtos cadastrados</h2><input id="stockSearch" placeholder="Buscar produto..." style="max-width:190px"></div><div id="stockTable"></div></div>
+  </div>
+</section>
+
+<section class="section" id="finance">
+  <div class="cards">
+    <div class="metric"><div class="label">Recebido no período</div><div class="value" id="finReceived">R$ 0,00</div></div>
+    <div class="metric"><div class="label">Valores pendentes</div><div class="value" id="finPending">R$ 0,00</div></div>
+    <div class="metric"><div class="label">Recebido via PIX</div><div class="value" id="finPix">R$ 0,00</div></div>
+    <div class="metric"><div class="label">Recebido em cartão</div><div class="value" id="finCard">R$ 0,00</div></div>
+  </div>
+  <div class="panel"><div class="subnav"><h2>Resumo financeiro</h2><div class="actions" style="margin:0"><label for="finStart">De</label><input type="date" id="finStart" style="max-width:150px"><label for="finEnd">até</label><input type="date" id="finEnd" style="max-width:150px"></div></div><p class="muted small">Considera os agendamentos marcados como “Confirmado / pago” ou “Realizado / pago”. Cancelados não entram nos totais.</p><div id="finBreakdown"></div></div>
+</section>
+
+<section class="section" id="settings">
+  <div class="panel">
+    <h2>Dados e configurações</h2>
+    <p>Os registros principais ficam no banco online compartilhado. O backup exportado contém uma cópia dos agendamentos e produtos carregados neste momento.</p>
+    <div class="actions"><button id="exportBtn2">Exportar backup JSON</button><button class="secondary" id="exportCsv">Exportar agendamentos CSV</button><button class="danger" id="clearAll">Apagar todos os dados deste navegador</button></div>
+    <p class="muted small">Acesso protegido por autenticação. Evite registrar informações clínicas sensíveis que não sejam necessárias para a gestão.</p>
+  </div>
+</section>
+<footer>Clínica de Estética · Protótipo funcional v1</footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/*
+  CONFIGURAÇÃO NECESSÁRIA:
+  1. Substitua SUPABASE_URL pelo endereço do seu projeto.
+  2. Substitua SUPABASE_PUBLISHABLE_KEY pela chave pública/publishable do projeto.
+  Nunca coloque service_role ou uma chave secreta neste arquivo.
+*/
+const SUPABASE_URL = 'https://pnpzutbuseclcrbghsvz.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_cMMmZM9k3Z_Gh72xUHJsqQ_2SLo0boP';
+const $ = id => document.getElementById(id);
+const today = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+const money = n => (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let db = {appointments:[], products:[], withdrawals:[]};
+let currentUser = null;
+let supabaseClient = null;
+let busy = false;
+
+function statusPill(s){return `<span class="pill ${s==='Confirmado'||s==='Realizado'?'ok':s==='Cancelado'?'bad':'warn'}">${esc(s)}</span>`}
+function paid(a){return ['Confirmado','Realizado'].includes(a.status)}
+function expiryState(d){
+  if(!d)return '';
+  let delta=Math.ceil((new Date(d+'T00:00:00')-new Date(today()+'T00:00:00'))/86400000);
+  if(delta<0)return `<span class="pill bad">Vencido há ${-delta} dia(s)</span>`;
+  if(delta<=30)return `<span class="pill warn">Vence em ${delta} dia(s)</span>`;
+  return `<span class="pill ok">Em dia</span>`;
+}
+function showLogin(message=''){
+  $('loginPanel').classList.remove('hidden');
+  $('appShell').classList.add('hidden');
+  $('loginMessage').textContent = message;
+}
+function showApp(){
+  $('loginPanel').classList.add('hidden');
+  $('appShell').classList.remove('hidden');
+  $('signedInAs').textContent = currentUser?.email || '';
+}
+function friendlyError(err){
+  const msg = err?.message || String(err || 'Erro desconhecido');
+  return msg;
+}
+async function loadData(){
+  if(!currentUser) return;
+  const [a,p,w] = await Promise.all([
+    supabaseClient.from('agendamentos').select('*').order('data').order('horario'),
+    supabaseClient.from('produtos').select('*').order('nome'),
+    supabaseClient.from('retiradas_estoque').select('*').order('retirado_em',{ascending:false})
+  ]);
+  if(a.error) throw a.error;
+  if(p.error) throw p.error;
+  if(w.error) throw w.error;
+  db.appointments = (a.data||[]).map(x=>({
+    id:x.id, date:x.data, time:String(x.horario).slice(0,5), client:x.cliente,
+    service:x.procedimento||'', value:Number(x.valor)||0, method:x.forma_pagamento||'Não informado',
+    status:x.situacao||'Pendente', notes:x.observacoes||''
+  }));
+  db.products = (p.data||[]).map(x=>({
+    id:x.id, name:x.nome, price:Number(x.preco)||0, qty:Number(x.quantidade)||0,
+    min:Number(x.estoque_minimo)||0, expiry:x.validade||''
+  }));
+  db.withdrawals = w.data || [];
+  render();
+}
+async function refreshOrAlert(){
+  try { await loadData(); }
+  catch(e){ alert('Não foi possível carregar os dados do Supabase: '+friendlyError(e)); }
+}
+function render(){
+  const month=today().slice(0,7),apps=db.appointments,prods=db.products;
+  const received=apps.filter(a=>paid(a)&&(a.paymentDate||a.date)?.startsWith(month)).reduce((s,a)=>s+Number(a.value),0);
+  $('dashReceived').textContent=money(received);
+  $('dashToday').textContent=apps.filter(a=>a.date===today()&&a.status!=='Cancelado').length;
+  $('dashProducts').textContent=prods.length;
+  const cutoff = new Date(Date.now()+30*86400000);
+  const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth()+1).padStart(2,'0')}-${String(cutoff.getDate()).padStart(2,'0')}`;
+  const exp=prods.filter(p=>p.expiry&&p.expiry<=cutoffStr);
+  $('dashExpiry').textContent=exp.length;
+  const next=apps.filter(a=>a.date>=today()&&a.status!=='Cancelado').sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).slice(0,6);
+  $('dashAppointments').innerHTML=next.length?`<div class="tablewrap"><table><thead><tr><th>Data/hora</th><th>Cliente</th><th>Procedimento</th><th>Situação</th></tr></thead><tbody>${next.map(a=>`<tr><td>${esc(a.date.split('-').reverse().join('/'))}<br><small>${esc(a.time)}</small></td><td>${esc(a.client)}</td><td>${esc(a.service||'—')}</td><td>${statusPill(a.status)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Nenhum próximo agendamento.</div>';
+  const alerts=prods.filter(p=>Number(p.qty)<=Number(p.min)||(p.expiry&&p.expiry<=cutoffStr));
+  $('dashAlerts').innerHTML=alerts.length?alerts.map(p=>`<p><b>${esc(p.name)}</b><br><small>${Number(p.qty)<=Number(p.min)?`Estoque baixo: ${p.qty} un. `:''}${p.expiry?`Validade: ${esc(p.expiry.split('-').reverse().join('/'))}`:''}</small> ${p.expiry?expiryState(p.expiry):''}</p>`).join(''):'<div class="empty">Nenhum alerta no momento.</div>';
+  const f=$('apptFilter').value;
+  let aa=apps.filter(a=>!f||a.date===f).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  $('apptTable').innerHTML=aa.length?`<div class="tablewrap"><table><thead><tr><th>Data/hora</th><th>Cliente / procedimento</th><th>Valor / pagamento</th><th>Status</th><th>Ações</th></tr></thead><tbody>${aa.map(a=>`<tr><td>${esc(a.date.split('-').reverse().join('/'))}<br><small>${esc(a.time)}</small></td><td><b>${esc(a.client)}</b><br><small>${esc(a.service||'—')}</small>${a.notes?`<br><small>${esc(a.notes)}</small>`:''}</td><td>${money(a.value)}<br><small>${esc(a.method)}</small></td><td>${statusPill(a.status)}</td><td><button class="secondary" onclick="editAppt('${a.id}')">Editar</button> <button class="danger" onclick="delAppt('${a.id}')">Excluir</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Nenhum agendamento cadastrado.</div>';
+  const q=$('stockSearch').value.toLowerCase();
+  const ps=prods.filter(p=>p.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+  $('stockTable').innerHTML=ps.length?`<div class="tablewrap"><table><thead><tr><th>Produto</th><th>Qtd.</th><th>Valor un.</th><th>Total</th><th>Validade</th><th>Ações</th></tr></thead><tbody>${ps.map(p=>`<tr><td><b>${esc(p.name)}</b><br><small>${Number(p.qty)<=Number(p.min)?'<span class="pill warn">Estoque baixo</span>':''}</small></td><td>${p.qty}</td><td>${money(p.price)}</td><td>${money(p.price*p.qty)}</td><td>${p.expiry?esc(p.expiry.split('-').reverse().join('/'))+'<br>'+expiryState(p.expiry):'—'}</td><td><button class="secondary" onclick="editStock('${p.id}')">Editar</button> <button class="danger" onclick="delStock('${p.id}')">Excluir</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Nenhum produto cadastrado.</div>';
+  $('withdrawProduct').innerHTML=prods.length?prods.map(p=>`<option value="${p.id}">${esc(p.name)} (${p.qty} un.)</option>`).join(''):'<option value="">Cadastre um produto primeiro</option>';
+  finance();
+}
+function finance(){
+  let start=$('finStart').value||today().slice(0,7)+'-01',end=$('finEnd').value||today();
+  // Receitas entram na data em que o dinheiro foi recebido; pendências continuam pela data do procedimento.
+  let paidApps=db.appointments.filter(a=>paid(a)&&a.status!=='Cancelado'&&(a.paymentDate||a.date)>=start&&(a.paymentDate||a.date)<=end);
+  let pendingApps=db.appointments.filter(a=>!paid(a)&&a.status!=='Cancelado'&&a.date>=start&&a.date<=end);
+  let sum=arr=>arr.reduce((s,a)=>s+Number(a.value),0);
+  $('finReceived').textContent=money(sum(paidApps));$('finPending').textContent=money(sum(pendingApps));
+  $('finPix').textContent=money(sum(paidApps.filter(a=>a.method==='PIX')));
+  $('finCard').textContent=money(sum(paidApps.filter(a=>['Crédito','Débito'].includes(a.method))));
+  const methods=['Dinheiro','PIX','Crédito','Débito','Não informado'];
+  $('finBreakdown').innerHTML=`<div class="tablewrap"><table><thead><tr><th>Forma de pagamento</th><th>Quantidade paga</th><th>Total recebido</th></tr></thead><tbody>${methods.map(m=>{let list=paidApps.filter(a=>a.method===m);return `<tr><td>${m}</td><td>${list.length}</td><td>${money(sum(list))}</td></tr>`}).join('')}<tr class="totalrow"><td>Total</td><td>${paidApps.length}</td><td>${money(sum(paidApps))}</td></tr></tbody></table></div>`;
+}
+function clearAppt(){$('apptForm').reset();$('apptId').value='';$('apptDate').value=today();$('apptPaymentDate').value='';$('apptFormTitle').textContent='Novo agendamento'}
+function clearStock(){$('stockForm').reset();$('stockId').value='';$('stockMin').value=2;$('stockFormTitle').textContent='Cadastrar produto'}
+async function runSave(promise, successText){
+  try { const {error}=await promise; if(error) throw error; await loadData(); alert(successText); }
+  catch(e){ alert('Não foi possível salvar: '+friendlyError(e)); }
+}
+$('apptForm').addEventListener('submit',async e=>{
+  e.preventDefault(); if(!currentUser||busy)return; busy=true;
+  const id=$('apptId').value;
+  let paymentDate=$('apptPaymentDate').value||null;
+  if(['Confirmado','Realizado'].includes($('apptStatus').value)&&!paymentDate) paymentDate=today();
+  const row={data:$('apptDate').value,horario:$('apptTime').value,cliente:$('apptClient').value.trim(),
+    procedimento:$('apptService').value.trim(),valor:Number($('apptValue').value),forma_pagamento:$('apptMethod').value,
+    situacao:$('apptStatus').value,data_recebimento:paymentDate,observacoes:$('apptNotes').value.trim(),criado_por:currentUser.id};
+  let query=id?supabaseClient.from('agendamentos').update(row).eq('id',id):supabaseClient.from('agendamentos').insert(row);
+  try{const {error}=await query;if(error)throw error;await loadData();clearAppt();alert('Agendamento salvo.');}
+  catch(err){alert('Não foi possível salvar o agendamento: '+friendlyError(err));}
+  finally{busy=false;}
+});
+$('stockForm').addEventListener('submit',async e=>{
+  e.preventDefault(); if(!currentUser||busy)return; busy=true;
+  const id=$('stockId').value;
+  const row={nome:$('stockName').value.trim(),preco:Number($('stockPrice').value),quantidade:Number($('stockQty').value),
+    estoque_minimo:Number($('stockMin').value||0),validade:$('stockExpiry').value||null,criado_por:currentUser.id};
+  let query=id?supabaseClient.from('produtos').update(row).eq('id',id):supabaseClient.from('produtos').insert(row);
+  try{const {error}=await query;if(error)throw error;await loadData();clearStock();alert('Produto salvo.');}
+  catch(err){alert('Não foi possível salvar o produto: '+friendlyError(err));}
+  finally{busy=false;}
+});
+$('withdrawForm').addEventListener('submit',async e=>{
+  e.preventDefault(); if(!currentUser||busy)return; busy=true;
+  const p=db.products.find(x=>x.id===$('withdrawProduct').value),n=Number($('withdrawQty').value);
+  if(!p){busy=false;return alert('Cadastre um produto primeiro.');}
+  if(!Number.isInteger(n)||n<1||n>p.qty){busy=false;return alert('Quantidade inválida ou maior que o estoque disponível.');}
+  try{
+    const {error:upErr}=await supabaseClient.from('produtos').update({quantidade:p.qty-n}).eq('id',p.id);
+    if(upErr)throw upErr;
+    const {error:insErr}=await supabaseClient.from('retiradas_estoque').insert({produto_id:p.id,quantidade:n,retirado_por:currentUser.id});
+    if(insErr){
+      // Try to restore stock if the withdrawal log could not be written.
+      await supabaseClient.from('produtos').update({quantidade:p.qty}).eq('id',p.id);
+      throw insErr;
+    }
+    await loadData();$('withdrawForm').reset();alert('Retirada registrada e estoque atualizado.');
+  }catch(err){alert('Não foi possível registrar a retirada: '+friendlyError(err));}
+  finally{busy=false;}
+});
+window.editAppt=id=>{let a=db.appointments.find(x=>x.id===id);if(!a)return;[['apptId','id'],['apptDate','date'],['apptTime','time'],['apptClient','client'],['apptService','service'],['apptValue','value'],['apptMethod','method'],['apptStatus','status'],['apptPaymentDate','paymentDate'],['apptNotes','notes']].forEach(([el,k])=>$(el).value=a[k]??'');$('apptFormTitle').textContent='Editar agendamento';document.querySelector('[data-tab="appointments"]').click();window.scrollTo({top:0,behavior:'smooth'})};
+window.delAppt=async id=>{if(confirm('Excluir este agendamento?')){try{const {error}=await supabaseClient.from('agendamentos').delete().eq('id',id);if(error)throw error;await loadData()}catch(e){alert('Não foi possível excluir: '+friendlyError(e))}}};
+window.editStock=id=>{let p=db.products.find(x=>x.id===id);if(!p)return;[['stockId','id'],['stockName','name'],['stockPrice','price'],['stockQty','qty'],['stockMin','min'],['stockExpiry','expiry']].forEach(([el,k])=>$(el).value=p[k]??'');$('stockFormTitle').textContent='Editar produto';document.querySelector('[data-tab="stock"]').click();window.scrollTo({top:0,behavior:'smooth'})};
+window.delStock=async id=>{if(confirm('Excluir este produto?')){try{const {error}=await supabaseClient.from('produtos').delete().eq('id',id);if(error)throw error;await loadData()}catch(e){alert('Não foi possível excluir o produto: '+friendlyError(e))}}};
+document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab));render()}));
+$('apptClear').onclick=clearAppt;$('stockClear').onclick=clearStock;$('apptFilter').onchange=render;$('stockSearch').oninput=render;$('finStart').onchange=finance;$('finEnd').onchange=finance;
+function download(blob,name){let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function exportBackup(){let blob=new Blob([JSON.stringify({appointments:db.appointments,products:db.products},null,2)],{type:'application/json'});download(blob,'clinica-estetica-backup.json')}
+$('exportBtn').onclick=$('exportBtn2').onclick=exportBackup;
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const x=JSON.parse(await f.text());
+    if(!Array.isArray(x.appointments)||!Array.isArray(x.products))throw Error('Formato inválido');
+    if(!confirm('Importar backup para a base compartilhada? Os registros importados serão acrescentados, não substituirão os dados online.'))return;
+    for(const a of x.appointments){
+      const {error}=await supabaseClient.from('agendamentos').insert({data:a.date,horario:a.time,cliente:a.client,procedimento:a.service||'',valor:Number(a.value)||0,forma_pagamento:a.method||'Não informado',situacao:a.status||'Pendente',data_recebimento:a.paymentDate||null,observacoes:a.notes||'',criado_por:currentUser.id});
+      if(error)throw error;
+    }
+    for(const p of x.products){
+      const {error}=await supabaseClient.from('produtos').insert({nome:p.name,preco:Number(p.price)||0,quantidade:Number(p.qty)||0,estoque_minimo:Number(p.min)||0,validade:p.expiry||null,criado_por:currentUser.id});
+      if(error)throw error;
+    }
+    await loadData();alert('Backup importado para a base online.');
+  }catch(err){alert('Importação parcial ou falhou: '+friendlyError(err)+'. Confira os registros antes de tentar novamente.')}
+  finally{e.target.value=''}
+};
+$('exportCsv').onclick=()=>{
+  let rows=[['Data do procedimento','Hora','Cliente','Procedimento','Valor','Pagamento','Situação','Data do recebimento','Observações'],...db.appointments.map(a=>[a.date,a.time,a.client,a.service,a.value,a.method,a.status,a.paymentDate||'',a.notes])];
+  let csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
+  download(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),'agendamentos.csv');
+};
+$('clearAll').onclick=()=>alert('Por segurança, apagar todos os dados online não está disponível neste arquivo. Exclua registros individualmente após confirmar que realmente deseja removê-los.');
+$('loginForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(!supabaseClient){$('loginMessage').textContent='Configure a chave pública do Supabase no arquivo antes de entrar.';return;}
+  $('loginMessage').textContent='Entrando...';
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email:$('loginEmail').value.trim(),password:$('loginPassword').value});
+  if(error){$('loginMessage').textContent='Não foi possível entrar: '+friendlyError(error);return;}
+  currentUser=data.user;showApp();
+  try{await loadData()}catch(err){showLogin('Login realizado, mas não foi possível carregar os dados: '+friendlyError(err));$('appShell').classList.add('hidden')}
+});
+$('logoutBtn').onclick=async()=>{if(supabaseClient)await supabaseClient.auth.signOut();currentUser=null;db={appointments:[],products:[],withdrawals:[]};showLogin('Você saiu da conta.')};
+async function init(){
+  $('apptDate').value=today();$('finStart').value=today().slice(0,7)+'-01';$('finEnd').value=today();
+  if(!window.supabase||!window.supabase.createClient){showLogin('Não foi possível carregar a biblioteca do Supabase. Confira sua conexão com a internet.');return;}
+  if(!SUPABASE_PUBLISHABLE_KEY||SUPABASE_PUBLISHABLE_KEY==='COLE_AQUI_SUA_CHAVE_PUBLICA_PUBLISHABLE'){
+    showLogin('Falta configurar a chave pública/publishable do Supabase neste arquivo.');
+    return;
+  }
+  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+  const {data:{session},error}=await supabaseClient.auth.getSession();
+  if(error){showLogin('Erro ao verificar sessão: '+friendlyError(error));return;}
+  if(session){
+    currentUser=session.user;showApp();
+    try{await loadData()}catch(e){showLogin('Não foi possível carregar os dados: '+friendlyError(e))}
+  }else showLogin();
+  supabaseClient.auth.onAuthStateChange(async (_event,session)=>{
+    if(session && !currentUser){
+      currentUser=session.user;showApp();
+      try{await loadData()}catch(e){showLogin('Não foi possível carregar os dados: '+friendlyError(e))}
+    }else if(!session){currentUser=null;showLogin()}
+  });
+}
+init();
+</script>
+
+</body>
+</html>
