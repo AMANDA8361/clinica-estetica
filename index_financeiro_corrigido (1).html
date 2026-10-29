@@ -168,7 +168,7 @@ async function loadData(){
   if(p.error) throw p.error;
   if(w.error) throw w.error;
   db.appointments = (a.data||[]).map(x=>({
-    id:x.id, date:x.data, time:String(x.horario).slice(0,5), client:x.cliente,
+    id:x.id, date:x.data, paymentDate:x.data_recebimento||x.data, time:String(x.horario).slice(0,5), client:x.cliente,
     service:x.procedimento||'', value:Number(x.valor)||0, method:x.forma_pagamento||'Não informado',
     status:x.situacao||'Pendente', notes:x.observacoes||''
   }));
