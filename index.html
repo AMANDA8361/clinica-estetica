@@ -60,6 +60,7 @@
           <div class="field"><label for="apptValue">Valor (R$) *</label><input type="number" id="apptValue" min="0" step="0.01" required placeholder="0,00"></div>
           <div class="field"><label for="apptMethod">Forma de pagamento</label><select id="apptMethod"><option>PIX</option><option>Dinheiro</option><option>Crédito</option><option>Débito</option><option>Não informado</option></select></div>
           <div class="field"><label for="apptStatus">Situação</label><select id="apptStatus"><option value="Pendente">Pendente</option><option value="Confirmado">Confirmado / pago</option><option value="Realizado">Realizado / pago</option><option value="Cancelado">Cancelado</option></select></div>
+          <div class="field"><label for="apptPaymentDate">Data do recebimento</label><input type="date" id="apptPaymentDate"><small class="muted">Preencha quando o pagamento já tiver sido recebido.</small></div>
           <div class="field"><label for="apptNotes">Observações</label><input id="apptNotes" placeholder="Opcional"></div>
         </div>
         <div class="actions"><button type="submit">Salvar agendamento</button><button type="button" class="secondary" id="apptClear">Limpar</button></div>
@@ -167,7 +168,7 @@ async function loadData(){
   if(p.error) throw p.error;
   if(w.error) throw w.error;
   db.appointments = (a.data||[]).map(x=>({
-    id:x.id, date:x.data, time:String(x.horario).slice(0,5), client:x.cliente,
+    id:x.id, date:x.data, paymentDate:x.data_recebimento||x.data, time:String(x.horario).slice(0,5), client:x.cliente,
     service:x.procedimento||'', value:Number(x.valor)||0, method:x.forma_pagamento||'Não informado',
     status:x.situacao||'Pendente', notes:x.observacoes||''
   }));
@@ -184,7 +185,7 @@ async function refreshOrAlert(){
 }
 function render(){
   const month=today().slice(0,7),apps=db.appointments,prods=db.products;
-  const received=apps.filter(a=>paid(a)&&a.date?.startsWith(month)).reduce((s,a)=>s+Number(a.value),0);
+  const received=apps.filter(a=>paid(a)&&(a.paymentDate||a.date)?.startsWith(month)).reduce((s,a)=>s+Number(a.value),0);
   $('dashReceived').textContent=money(received);
   $('dashToday').textContent=apps.filter(a=>a.date===today()&&a.status!=='Cancelado').length;
   $('dashProducts').textContent=prods.length;
@@ -207,15 +208,17 @@ function render(){
 }
 function finance(){
   let start=$('finStart').value||today().slice(0,7)+'-01',end=$('finEnd').value||today();
-  let aa=db.appointments.filter(a=>a.date>=start&&a.date<=end&&a.status!=='Cancelado');
-  let paidApps=aa.filter(paid),sum=arr=>arr.reduce((s,a)=>s+Number(a.value),0);
-  $('finReceived').textContent=money(sum(paidApps));$('finPending').textContent=money(sum(aa.filter(a=>!paid(a))));
+  // Receitas entram na data em que o dinheiro foi recebido; pendências continuam pela data do procedimento.
+  let paidApps=db.appointments.filter(a=>paid(a)&&a.status!=='Cancelado'&&(a.paymentDate||a.date)>=start&&(a.paymentDate||a.date)<=end);
+  let pendingApps=db.appointments.filter(a=>!paid(a)&&a.status!=='Cancelado'&&a.date>=start&&a.date<=end);
+  let sum=arr=>arr.reduce((s,a)=>s+Number(a.value),0);
+  $('finReceived').textContent=money(sum(paidApps));$('finPending').textContent=money(sum(pendingApps));
   $('finPix').textContent=money(sum(paidApps.filter(a=>a.method==='PIX')));
   $('finCard').textContent=money(sum(paidApps.filter(a=>['Crédito','Débito'].includes(a.method))));
   const methods=['Dinheiro','PIX','Crédito','Débito','Não informado'];
   $('finBreakdown').innerHTML=`<div class="tablewrap"><table><thead><tr><th>Forma de pagamento</th><th>Quantidade paga</th><th>Total recebido</th></tr></thead><tbody>${methods.map(m=>{let list=paidApps.filter(a=>a.method===m);return `<tr><td>${m}</td><td>${list.length}</td><td>${money(sum(list))}</td></tr>`}).join('')}<tr class="totalrow"><td>Total</td><td>${paidApps.length}</td><td>${money(sum(paidApps))}</td></tr></tbody></table></div>`;
 }
-function clearAppt(){$('apptForm').reset();$('apptId').value='';$('apptDate').value=today();$('apptFormTitle').textContent='Novo agendamento'}
+function clearAppt(){$('apptForm').reset();$('apptId').value='';$('apptDate').value=today();$('apptPaymentDate').value='';$('apptFormTitle').textContent='Novo agendamento'}
 function clearStock(){$('stockForm').reset();$('stockId').value='';$('stockMin').value=2;$('stockFormTitle').textContent='Cadastrar produto'}
 async function runSave(promise, successText){
   try { const {error}=await promise; if(error) throw error; await loadData(); alert(successText); }
@@ -224,9 +227,11 @@ async function runSave(promise, successText){
 $('apptForm').addEventListener('submit',async e=>{
   e.preventDefault(); if(!currentUser||busy)return; busy=true;
   const id=$('apptId').value;
+  let paymentDate=$('apptPaymentDate').value||null;
+  if(['Confirmado','Realizado'].includes($('apptStatus').value)&&!paymentDate) paymentDate=today();
   const row={data:$('apptDate').value,horario:$('apptTime').value,cliente:$('apptClient').value.trim(),
     procedimento:$('apptService').value.trim(),valor:Number($('apptValue').value),forma_pagamento:$('apptMethod').value,
-    situacao:$('apptStatus').value,observacoes:$('apptNotes').value.trim(),criado_por:currentUser.id};
+    situacao:$('apptStatus').value,data_recebimento:paymentDate,observacoes:$('apptNotes').value.trim(),criado_por:currentUser.id};
   let query=id?supabaseClient.from('agendamentos').update(row).eq('id',id):supabaseClient.from('agendamentos').insert(row);
   try{const {error}=await query;if(error)throw error;await loadData();clearAppt();alert('Agendamento salvo.');}
   catch(err){alert('Não foi possível salvar o agendamento: '+friendlyError(err));}
@@ -260,7 +265,7 @@ $('withdrawForm').addEventListener('submit',async e=>{
   }catch(err){alert('Não foi possível registrar a retirada: '+friendlyError(err));}
   finally{busy=false;}
 });
-window.editAppt=id=>{let a=db.appointments.find(x=>x.id===id);if(!a)return;[['apptId','id'],['apptDate','date'],['apptTime','time'],['apptClient','client'],['apptService','service'],['apptValue','value'],['apptMethod','method'],['apptStatus','status'],['apptNotes','notes']].forEach(([el,k])=>$(el).value=a[k]??'');$('apptFormTitle').textContent='Editar agendamento';document.querySelector('[data-tab="appointments"]').click();window.scrollTo({top:0,behavior:'smooth'})};
+window.editAppt=id=>{let a=db.appointments.find(x=>x.id===id);if(!a)return;[['apptId','id'],['apptDate','date'],['apptTime','time'],['apptClient','client'],['apptService','service'],['apptValue','value'],['apptMethod','method'],['apptStatus','status'],['apptPaymentDate','paymentDate'],['apptNotes','notes']].forEach(([el,k])=>$(el).value=a[k]??'');$('apptFormTitle').textContent='Editar agendamento';document.querySelector('[data-tab="appointments"]').click();window.scrollTo({top:0,behavior:'smooth'})};
 window.delAppt=async id=>{if(confirm('Excluir este agendamento?')){try{const {error}=await supabaseClient.from('agendamentos').delete().eq('id',id);if(error)throw error;await loadData()}catch(e){alert('Não foi possível excluir: '+friendlyError(e))}}};
 window.editStock=id=>{let p=db.products.find(x=>x.id===id);if(!p)return;[['stockId','id'],['stockName','name'],['stockPrice','price'],['stockQty','qty'],['stockMin','min'],['stockExpiry','expiry']].forEach(([el,k])=>$(el).value=p[k]??'');$('stockFormTitle').textContent='Editar produto';document.querySelector('[data-tab="stock"]').click();window.scrollTo({top:0,behavior:'smooth'})};
 window.delStock=async id=>{if(confirm('Excluir este produto?')){try{const {error}=await supabaseClient.from('produtos').delete().eq('id',id);if(error)throw error;await loadData()}catch(e){alert('Não foi possível excluir o produto: '+friendlyError(e))}}};
@@ -277,7 +282,7 @@ $('importFile').onchange=async e=>{
     if(!Array.isArray(x.appointments)||!Array.isArray(x.products))throw Error('Formato inválido');
     if(!confirm('Importar backup para a base compartilhada? Os registros importados serão acrescentados, não substituirão os dados online.'))return;
     for(const a of x.appointments){
-      const {error}=await supabaseClient.from('agendamentos').insert({data:a.date,horario:a.time,cliente:a.client,procedimento:a.service||'',valor:Number(a.value)||0,forma_pagamento:a.method||'Não informado',situacao:a.status||'Pendente',observacoes:a.notes||'',criado_por:currentUser.id});
+      const {error}=await supabaseClient.from('agendamentos').insert({data:a.date,horario:a.time,cliente:a.client,procedimento:a.service||'',valor:Number(a.value)||0,forma_pagamento:a.method||'Não informado',situacao:a.status||'Pendente',data_recebimento:a.paymentDate||null,observacoes:a.notes||'',criado_por:currentUser.id});
       if(error)throw error;
     }
     for(const p of x.products){
@@ -289,7 +294,7 @@ $('importFile').onchange=async e=>{
   finally{e.target.value=''}
 };
 $('exportCsv').onclick=()=>{
-  let rows=[['Data','Hora','Cliente','Procedimento','Valor','Pagamento','Situação','Observações'],...db.appointments.map(a=>[a.date,a.time,a.client,a.service,a.value,a.method,a.status,a.notes])];
+  let rows=[['Data do procedimento','Hora','Cliente','Procedimento','Valor','Pagamento','Situação','Data do recebimento','Observações'],...db.appointments.map(a=>[a.date,a.time,a.client,a.service,a.value,a.method,a.status,a.paymentDate||'',a.notes])];
   let csv=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
   download(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),'agendamentos.csv');
 };
